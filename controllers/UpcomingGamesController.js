@@ -7,10 +7,16 @@ const PzkoszApiController = require("./PzkoszApiController");
 
 class UpcomingGamesController {
   formatGameData(data, league) {
+    console.log(data);
+
+    if (!data) {
+      return {};
+    }
+
     return {
       // date: parseInt(data.mdata),
       id: data.id,
-      date: 1597938759,
+      date: 1601487000,
       league,
       homeTeam: {
         name: data.k1.nazwa,
@@ -39,8 +45,8 @@ class UpcomingGamesController {
           team: teamId,
           // dateFrom: now,
           // dateTo: weekFromNow
-          dateFrom: "2019-12-10",
-          dateTo: "2019-12-20"
+          dateFrom: "2019-08-30",
+          dateTo: "2020-12-20"
         })
       })
         .then(data => data.json())

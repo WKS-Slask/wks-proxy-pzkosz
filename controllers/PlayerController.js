@@ -48,44 +48,35 @@ class PlayerController {
     }
   };
 
-  formatRecords = async records => ({
-    points: {
-      value: records.Pkt.max,
-      opponent: records.Pkt.z_kim[0].nazwa,
-      league: await PzkoszApiController.getLeagueName(
-        records.Pkt.z_kim[0].leagueid
-      ),
-      date: records.Pkt.z_kim[0].data.substr(
-        0,
-        records.Pkt.z_kim[0].data.indexOf(" ")
-      ),
-      label: "Punkty"
-    },
-    assists: {
-      value: records.As.max,
-      opponent: records.As.z_kim[0].nazwa,
-      league: await PzkoszApiController.getLeagueName(
-        records.As.z_kim[0].leagueid
-      ),
-      date: records.As.z_kim[0].data.substr(
-        0,
-        records.As.z_kim[0].data.indexOf(" ")
-      ),
-      label: "Asysty"
-    },
-    rebounds: {
-      value: records.Sum.max,
-      opponent: records.Sum.z_kim[0].nazwa,
-      league: await PzkoszApiController.getLeagueName(
-        records.Sum.z_kim[0].leagueid
-      ),
-      date: records.Sum.z_kim[0].data.substr(
-        0,
-        records.Sum.z_kim[0].data.indexOf(" ")
-      ),
-      label: "Zbiórki"
+  formatRecords = async ({ Pkt, As, Sum }) => {
+    if (!Pkt.max || !As.max || !Sum.max) {
+      return {};
     }
-  });
+
+    return {
+      points: {
+        value: Pkt.max,
+        opponent: Pkt.z_kim[0].nazwa,
+        league: await PzkoszApiController.getLeagueName(Pkt.z_kim[0].leagueid),
+        date: Pkt.z_kim[0].data.substr(0, Pkt.z_kim[0].data.indexOf(" ")),
+        label: "Punkty"
+      },
+      assists: {
+        value: As.max,
+        opponent: As.z_kim[0].nazwa,
+        league: await PzkoszApiController.getLeagueName(As.z_kim[0].leagueid),
+        date: As.z_kim[0].data.substr(0, As.z_kim[0].data.indexOf(" ")),
+        label: "Asysty"
+      },
+      rebounds: {
+        value: Sum.max,
+        opponent: Sum.z_kim[0].nazwa,
+        league: await PzkoszApiController.getLeagueName(Sum.z_kim[0].leagueid),
+        date: Sum.z_kim[0].data.substr(0, Sum.z_kim[0].data.indexOf(" ")),
+        label: "Zbiórki"
+      }
+    };
+  };
 
   formatStatistics = async statistics => {
     const promises = statistics.map(async data => {
@@ -184,7 +175,9 @@ class PlayerController {
 
   async get(req, res) {
     const seasonId = await PzkoszApiController.getSeasonId();
+    console.log(seasonId);
     const data = await this.getPlayer(this.id, seasonId);
+    console.log(data);
     res.status(200).send(data);
   }
 }

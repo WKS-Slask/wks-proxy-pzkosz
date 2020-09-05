@@ -1,16 +1,16 @@
 const pzkoszIDs = [
   // II liga
   {
-    id: 4115,
+    id: 7606,
     leagueId: 4,
     leagueName: "II liga"
-  },
-  // U-20 I
-  {
-    id: 6942,
-    leagueId: 265,
-    leagueName: "Juniorzy Starsi I"
   }
+  // U-20 I
+  // {
+  //   id: 6942,
+  //   leagueId: 265,
+  //   leagueName: "Juniorzy Starsi I"
+  // }
   // U-20 II
 
   // U-18
