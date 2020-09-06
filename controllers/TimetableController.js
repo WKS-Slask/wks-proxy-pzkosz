@@ -29,13 +29,13 @@ class TimetableController {
 
   fetchTimetable = async seasonId => {
     try {
-      const response = await fetch(process.env.API_ADDRESS, {
+      const response = await fetch(process.env.PZKOSZ_API_ADDRESS, {
         method: "post",
         headers: {
           "Content-Type": "application/x-www-form-urlencoded"
         },
         body: qs.stringify({
-          key: process.env.API_KEY,
+          key: process.env.PZKOSZ_API_KEY,
           function: "getTimetable",
           seasonid: seasonId,
           leagueid: this.leagueId,

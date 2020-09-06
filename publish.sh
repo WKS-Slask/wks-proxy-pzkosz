@@ -1,7 +1,6 @@
 git add .
 
-git commit -m "chore: test"
+git commit -m "chore: publish"
 
-git push origin development
+git push origin master
 
-read

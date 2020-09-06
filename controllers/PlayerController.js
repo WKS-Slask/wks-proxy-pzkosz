@@ -28,13 +28,13 @@ class PlayerController {
 
   fetchPlayerData = async id => {
     try {
-      const response = await fetch(process.env.API_ADDRESS, {
+      const response = await fetch(process.env.PZKOSZ_API_ADDRESS, {
         method: "post",
         headers: {
           "Content-Type": "application/x-www-form-urlencoded"
         },
         body: qs.stringify({
-          key: process.env.API_KEY,
+          key: process.env.PZKOSZ_API_KEY,
           function: "getPlayer",
           playerid: id
         })
@@ -92,13 +92,13 @@ class PlayerController {
 
   fetchPlayerSeasonRecords = async (playerId, seasonId) => {
     try {
-      const response = await fetch(process.env.API_ADDRESS, {
+      const response = await fetch(process.env.PZKOSZ_API_ADDRESS, {
         method: "post",
         headers: {
           "Content-Type": "application/x-www-form-urlencoded"
         },
         body: qs.stringify({
-          key: process.env.API_KEY,
+          key: process.env.PZKOSZ_API_KEY,
           function: "getPlayerRecords",
           seasonid: seasonId,
           playerid: playerId
@@ -115,13 +115,13 @@ class PlayerController {
 
   fetchPlayerCareerRecords = async id => {
     try {
-      const response = await fetch(process.env.API_ADDRESS, {
+      const response = await fetch(process.env.PZKOSZ_API_ADDRESS, {
         method: "post",
         headers: {
           "Content-Type": "application/x-www-form-urlencoded"
         },
         body: qs.stringify({
-          key: process.env.API_KEY,
+          key: process.env.PZKOSZ_API_KEY,
           function: "getPlayerRecords",
           playerid: id
         })
@@ -137,13 +137,13 @@ class PlayerController {
 
   fetchPlayerStatistics = async (playerId, seasonId) => {
     try {
-      const response = await fetch(process.env.API_ADDRESS, {
+      const response = await fetch(process.env.PZKOSZ_API_ADDRESS, {
         method: "post",
         headers: {
           "Content-Type": "application/x-www-form-urlencoded"
         },
         body: qs.stringify({
-          key: process.env.API_KEY,
+          key: process.env.PZKOSZ_API_KEY,
           function: "getPlayerStatistics",
           playerid: playerId,
           seasonid: seasonId
