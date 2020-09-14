@@ -5,11 +5,12 @@ const TimetableController = require("../controllers/TimetableController");
 
 const router = express.Router();
 
-router.get("/timetable/:teamId/:leagueId", async (req, res) => {
+router.get("/timetable/:teamId/:leagueId/:seasonId?", async (req, res) => {
   try {
     const timetable = new TimetableController(
       req.params.leagueId,
-      req.params.teamId
+      req.params.teamId,
+      req.params.seasonId
     );
     await timetable.get(req, res);
   } catch (err) {

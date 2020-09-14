@@ -7,6 +7,7 @@ const upcomingGames = require("./routes/games");
 const player = require("./routes/player");
 const team = require("./routes/team");
 const root = require("./routes/root");
+const league = require("./routes/league");
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -21,5 +22,6 @@ app.use("/", root);
 app.use("/api/upcoming-games", upcomingGames);
 app.use("/api/player", player);
 app.use("/api/team", team);
+app.use("/api/league", league);
 
 app.listen(port, () => console.log(`App is working on port ${port}`));

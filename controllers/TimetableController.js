@@ -6,9 +6,10 @@ const formatDate = require("../utils/formatDate");
 const PzkoszApiController = require("./PzkoszApiController");
 
 class TimetableController {
-  constructor(leagueId, teamId) {
+  constructor(leagueId, teamId, seasonId) {
     this.leagueId = leagueId;
     this.teamId = teamId;
+    this.seasonId = seasonId;
   }
 
   formatTimetableData(data) {
@@ -53,9 +54,10 @@ class TimetableController {
 
   async get(req, res) {
     try {
-      const seasonId = await PzkoszApiController.getSeasonId();
+      const seasonId =
+        this.seasonId || (await PzkoszApiController.getSeasonId());
       const timetable = await this.fetchTimetable(seasonId);
-
+      console.log(timetable);
       res.status(200).send(this.formatTimetableData(timetable));
     } catch (err) {
       console.warn(err);
