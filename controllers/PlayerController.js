@@ -9,7 +9,7 @@ class PlayerController {
   }
 
   formatPlayerData(data) {
-    const getAge = birthDate => {
+    const getAge = (birthDate) => {
       const date = new Date();
       const birthYear = birthDate.substr(
         birthDate.length - 4,
@@ -22,22 +22,22 @@ class PlayerController {
     return {
       position: data.pozycja,
       height: data.wzrost,
-      age: getAge(data.data_urodzenia)
+      age: getAge(data.data_urodzenia),
     };
   }
 
-  fetchPlayerData = async id => {
+  fetchPlayerData = async (id) => {
     try {
       const response = await fetch(process.env.PZKOSZ_API_ADDRESS, {
         method: "post",
         headers: {
-          "Content-Type": "application/x-www-form-urlencoded"
+          "Content-Type": "application/x-www-form-urlencoded",
         },
         body: qs.stringify({
           key: process.env.PZKOSZ_API_KEY,
           function: "getPlayer",
-          playerid: id
-        })
+          playerid: id,
+        }),
       });
 
       const data = await response.json();
@@ -59,32 +59,32 @@ class PlayerController {
         opponent: Pkt.z_kim[0].nazwa,
         league: await PzkoszApiController.getLeagueName(Pkt.z_kim[0].leagueid),
         date: Pkt.z_kim[0].data.substr(0, Pkt.z_kim[0].data.indexOf(" ")),
-        label: "Punkty"
+        label: "Punkty",
       },
       assists: {
         value: As.max,
         opponent: As.z_kim[0].nazwa,
         league: await PzkoszApiController.getLeagueName(As.z_kim[0].leagueid),
         date: As.z_kim[0].data.substr(0, As.z_kim[0].data.indexOf(" ")),
-        label: "Asysty"
+        label: "Asysty",
       },
       rebounds: {
         value: Sum.max,
         opponent: Sum.z_kim[0].nazwa,
         league: await PzkoszApiController.getLeagueName(Sum.z_kim[0].leagueid),
         date: Sum.z_kim[0].data.substr(0, Sum.z_kim[0].data.indexOf(" ")),
-        label: "Zbiórki"
-      }
+        label: "Zbiórki",
+      },
     };
   };
 
-  formatStatistics = async statistics => {
-    const promises = statistics.map(async data => {
+  formatStatistics = async (statistics) => {
+    const promises = statistics.map(async (data) => {
       return {
         points: data.Pkt,
         assists: data.As,
         rebounds: data.Sum,
-        league: await PzkoszApiController.getLeagueName(data.leagueid)
+        league: await PzkoszApiController.getLeagueName(data.leagueid),
       };
     });
     return Promise.all(promises);
@@ -95,14 +95,14 @@ class PlayerController {
       const response = await fetch(process.env.PZKOSZ_API_ADDRESS, {
         method: "post",
         headers: {
-          "Content-Type": "application/x-www-form-urlencoded"
+          "Content-Type": "application/x-www-form-urlencoded",
         },
         body: qs.stringify({
           key: process.env.PZKOSZ_API_KEY,
           function: "getPlayerRecords",
           seasonid: seasonId,
-          playerid: playerId
-        })
+          playerid: playerId,
+        }),
       });
 
       const data = await response.json();
@@ -113,18 +113,18 @@ class PlayerController {
     }
   };
 
-  fetchPlayerCareerRecords = async id => {
+  fetchPlayerCareerRecords = async (id) => {
     try {
       const response = await fetch(process.env.PZKOSZ_API_ADDRESS, {
         method: "post",
         headers: {
-          "Content-Type": "application/x-www-form-urlencoded"
+          "Content-Type": "application/x-www-form-urlencoded",
         },
         body: qs.stringify({
           key: process.env.PZKOSZ_API_KEY,
           function: "getPlayerRecords",
-          playerid: id
-        })
+          playerid: id,
+        }),
       });
 
       const data = await response.json();
@@ -140,14 +140,14 @@ class PlayerController {
       const response = await fetch(process.env.PZKOSZ_API_ADDRESS, {
         method: "post",
         headers: {
-          "Content-Type": "application/x-www-form-urlencoded"
+          "Content-Type": "application/x-www-form-urlencoded",
         },
         body: qs.stringify({
           key: process.env.PZKOSZ_API_KEY,
           function: "getPlayerStatistics",
           playerid: playerId,
-          seasonid: seasonId
-        })
+          seasonid: seasonId,
+        }),
       });
 
       const data = await response.json();
@@ -165,19 +165,17 @@ class PlayerController {
       this.fetchPlayerData(playerId),
       this.fetchPlayerSeasonRecords(playerId, seasonId),
       this.fetchPlayerCareerRecords(playerId),
-      this.fetchPlayerStatistics(playerId, seasonId)
-    ]).then(playerData => ({
+      this.fetchPlayerStatistics(playerId, seasonId),
+    ]).then((playerData) => ({
       data: playerData[0],
       seasonRecords: playerData[1],
       careerRecords: playerData[2],
-      statistics: playerData[3]
+      statistics: playerData[3],
     }));
 
   async get(req, res) {
     const seasonId = await PzkoszApiController.getSeasonId();
-    console.log(seasonId);
     const data = await this.getPlayer(this.id, seasonId);
-    console.log(data);
     res.status(200).send(data);
   }
 }

@@ -5,7 +5,7 @@ const formatDate = require("../utils/formatDate");
 
 const PzkoszApiController = require("./PzkoszApiController");
 
-class TimetableController {
+class TeamTimetableController {
   constructor(leagueId, teamId, seasonId) {
     this.leagueId = leagueId;
     this.teamId = teamId;
@@ -17,31 +17,31 @@ class TimetableController {
       return [];
     }
 
-    return Object.values(data.items).map(game => ({
+    return Object.values(data.items).map((game) => ({
       kolejka: game.kolejka,
       data: formatDate(game.data),
       k1: { ...game.k1, logo: game.k1.logo.replace("50-50", "100-100") },
       k2: { ...game.k2, logo: game.k2.logo.replace("50-50", "100-100") },
       id: game.id,
       wynik1: game.wynik1,
-      wynik2: game.wynik2
+      wynik2: game.wynik2,
     }));
   }
 
-  fetchTimetable = async seasonId => {
+  fetchTimetable = async (seasonId) => {
     try {
       const response = await fetch(process.env.PZKOSZ_API_ADDRESS, {
         method: "post",
         headers: {
-          "Content-Type": "application/x-www-form-urlencoded"
+          "Content-Type": "application/x-www-form-urlencoded",
         },
         body: qs.stringify({
           key: process.env.PZKOSZ_API_KEY,
           function: "getTimetable",
           seasonid: seasonId,
           leagueid: this.leagueId,
-          team: this.teamId
-        })
+          team: this.teamId,
+        }),
       });
 
       const data = await response.json();
@@ -57,7 +57,6 @@ class TimetableController {
       const seasonId =
         this.seasonId || (await PzkoszApiController.getSeasonId());
       const timetable = await this.fetchTimetable(seasonId);
-      console.log(timetable);
       res.status(200).send(this.formatTimetableData(timetable));
     } catch (err) {
       console.warn(err);
@@ -65,4 +64,4 @@ class TimetableController {
   }
 }
 
-module.exports = TimetableController;
+module.exports = TeamTimetableController;

@@ -1,13 +1,13 @@
 const express = require("express");
 
 const TableController = require("../controllers/TableController");
-const TimetableController = require("../controllers/TimetableController");
+const TeamTimetableController = require("../controllers/TeamTimetableController");
 
 const router = express.Router();
 
 router.get("/timetable/:teamId/:leagueId/:seasonId?", async (req, res) => {
   try {
-    const timetable = new TimetableController(
+    const timetable = new TeamTimetableController(
       req.params.leagueId,
       req.params.teamId,
       req.params.seasonId
