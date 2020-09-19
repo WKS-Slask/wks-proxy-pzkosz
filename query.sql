@@ -1,0 +1,1 @@
+SELECT wp_posts.ID, wp_posts.post_name, wp_postmeta.meta_key, wp_postmeta.meta_value FROM wp_posts LEFT JOIN wp_postmeta ON wp_posts.ID=wp_postmeta.post_id WHERE wp_posts.post_type="team" AND wp_postmeta.meta_key="league_id"
