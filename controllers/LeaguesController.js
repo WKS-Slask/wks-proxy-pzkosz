@@ -1,37 +1,29 @@
-const fetch = require("node-fetch");
-const qs = require("qs");
+const BaseController = require("./BaseController");
 
-class TableController {
-  fetchLeagues = async () => {
-    const response = await fetch(process.env.PZKOSZ_API_ADDRESS, {
-      method: "post",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      body: qs.stringify({
-        key: process.env.PZKOSZ_API_KEY,
-        function: "getAllLeagues",
-      }),
-    });
+class LeaguesController extends BaseController {
+  constructor() {
+    super();
+  }
 
-    const data = await response.json();
-
-    return data;
-  };
-
-  getLeagues = async () => {
-    const leagues = await this.fetchLeagues();
-
-    return Object.values(leagues).map(({ id, nazwa, skrot }) => ({
+  formatLeagues = (leagues) =>
+    Object.values(leagues).map(({ id, nazwa, skrot }) => ({
       id,
       name: `${nazwa} (${skrot})`,
     }));
+
+  getLeagues = async () => {
+    const leagues = await this.getAllLeagues();
+    return this.formatLeagues(leagues);
   };
 
   async get(req, res) {
-    const leagues = await this.getLeagues();
-    res.status(200).send(leagues);
+    try {
+      const leagues = await this.getLeagues();
+      res.status(200).send(leagues);
+    } catch (err) {
+      console.warn(err);
+    }
   }
 }
 
-module.exports = TableController;
+module.exports = LeaguesController;

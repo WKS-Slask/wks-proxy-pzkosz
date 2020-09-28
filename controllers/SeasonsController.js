@@ -1,31 +1,15 @@
-const fetch = require("node-fetch");
-const qs = require("qs");
+const BaseController = require("./BaseController");
 
-class TableController {
-  fetchSeasons = async () => {
-    const response = await fetch(process.env.PZKOSZ_API_ADDRESS, {
-      method: "post",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      body: qs.stringify({
-        key: process.env.PZKOSZ_API_KEY,
-        function: "getAllSeasons",
-      }),
-    });
-
-    const data = await response.json();
-
-    return data;
-  };
-
-  getSeasons = async () => {
-    const seasons = await this.fetchSeasons();
-
-    return Object.values(seasons).map(({ id, nazwa }) => ({
+class SeasonsController extends BaseController {
+  formatSeasons = async (seasons) =>
+    Object.values(seasons).map(({ id, nazwa }) => ({
       id,
       name: nazwa,
     }));
+
+  getSeasons = async () => {
+    const seasons = await this.getAllSeasons();
+    return this.formatSeasons(seasons);
   };
 
   async get(req, res) {
@@ -34,4 +18,4 @@ class TableController {
   }
 }
 
-module.exports = TableController;
+module.exports = SeasonsController;

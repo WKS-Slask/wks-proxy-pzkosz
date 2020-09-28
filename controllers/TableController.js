@@ -1,37 +1,27 @@
-const fetch = require("node-fetch");
-const qs = require("qs");
+const fetchData = require("../utils/fetchData");
+const { GET_LEAGUE_TABLE } = require("../constants/pzkoszMethods");
+const BaseController = require("./BaseController");
 
-const PzkoszApiController = require("./PzkoszApiController");
-
-class TableController {
-  constructor(leagueId, groupId) {
-    this.leagueId = leagueId;
-    this.groupId = groupId;
+class TableController extends BaseController {
+  constructor({ leagueid, groupid, seasonid }) {
+    this.leagueId = leagueid;
+    this.groupId = groupid;
+    this.seasonId = seasonid;
   }
 
-  fetchTable = async seasonId => {
-    const response = await fetch(process.env.PZKOSZ_API_ADDRESS, {
-      method: "post",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded"
-      },
-      body: qs.stringify({
-        key: process.env.PZKOSZ_API_KEY,
-        function: "getLeagueTable",
-        seasonid: seasonId,
-        leagueid: this.leagueId,
-        groupid: this.groupId
-      })
-    });
-
-    const data = await response.json();
-
-    return data;
+  getTable = async () => {
+    const seasonId = await this.getCurrentSeasonId();
+    const args = {
+      leagueid: this.leagueId,
+      seasonid: this.seasonId || seasonId,
+      groupid: this.groupId || 0,
+    };
+    const table = await fetchData(args, GET_LEAGUE_TABLE);
+    return table;
   };
 
   async get(req, res) {
-    const seasonId = await PzkoszApiController.getSeasonId();
-    const table = await this.fetchTable(seasonId);
+    const table = await this.getTable();
 
     res.status(200).send(table);
   }
