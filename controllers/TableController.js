@@ -4,6 +4,8 @@ const BaseController = require("./BaseController");
 
 class TableController extends BaseController {
   constructor({ leagueid, groupid, seasonid }) {
+    super();
+
     this.leagueId = leagueid;
     this.groupId = groupid;
     this.seasonId = seasonid;
