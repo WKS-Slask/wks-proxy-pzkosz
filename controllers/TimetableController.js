@@ -3,6 +3,7 @@ const fetchData = require("../utils/fetchData");
 const formatDate = require("../utils/formatDate");
 const { GET_TIMETABLE } = require("../constants/pzkoszMethods");
 const leagueTypes = require("../constants/leagueTypes");
+const getTimefromDate = require("../utils/getTimeFromDate");
 
 class TimetableController extends BaseController {
   constructor({
@@ -59,6 +60,7 @@ class TimetableController extends BaseController {
         name: game.kolejka.nazwa,
       },
       data: formatDate(game.data),
+      time: getTimefromDate(game.data),
       homeTeam: {
         id: game.k1.id,
         name: game.k1.nazwa,
