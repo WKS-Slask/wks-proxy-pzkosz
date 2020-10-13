@@ -71,9 +71,11 @@ class UpcomingGamesController extends BaseController {
 
   async get(req, res) {
     const upcomingGames = await this.getUpcomingGames();
-    const filteredUpcomingGames = upcomingGames.filter(
-      (game) => game.date > Math.floor(Date.now() / 1000)
-    );
+    const filteredUpcomingGames = upcomingGames
+      .filter((game) => game.date > Math.floor(Date.now() / 1000))
+      .sort((gameA, gameB) => {
+        return gameA.date - gameB.date;
+      });
 
     res.status(200).send(this.validateData(filteredUpcomingGames));
   }

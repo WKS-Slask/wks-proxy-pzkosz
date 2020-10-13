@@ -28,6 +28,7 @@ class PlayerController extends BaseController {
       position: data[0].pozycja,
       height: data[0].wzrost,
       age: getAge(data[0].data_urodzenia),
+      photo: data[0].foto,
     };
   }
 

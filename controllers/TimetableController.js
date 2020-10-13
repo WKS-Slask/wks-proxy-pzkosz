@@ -84,7 +84,7 @@ class TimetableController extends BaseController {
           game.dogrywka3,
           game.dogrywka4,
           game.dogrywka5,
-        ].filter((quarter) => quarter !== ""),
+        ].filter((quarter) => quarter !== "" && quarter !== "0:0"),
       },
       url: this.generateUrl(game.kolejka.ligaid, game.id),
     }));
