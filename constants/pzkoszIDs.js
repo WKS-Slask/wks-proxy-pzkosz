@@ -5,17 +5,11 @@ const pzkoszIDs = [
     leagueId: 4,
     leagueName: "II liga",
   },
-  // U-19 I
+  // U-19
   {
     id: 851,
     leagueId: 382,
-    leagueName: "Juniorzy Starsi I",
-  },
-  // U-19 II
-  {
-    id: 6943,
-    leagueId: 382,
-    leagueName: "Juniorzy Starsi II",
+    leagueName: "Juniorzy Starsi",
   },
   // U-17
   {
@@ -56,24 +50,24 @@ const pzkoszIDs = [
   {
     id: 4159,
     leagueId: 271,
-    leagueName: "Minikoszykówka U12",
+    leagueName: "Mini-kosz U12",
   },
   // U-12 II
   {
     id: 6943,
     leagueId: 271,
-    leagueName: "Minikoszykówka U12",
+    leagueName: "Mini-kosz U12",
   },
   // U-11
   {
     id: 4159,
     leagueId: 381,
-    leagueName: "Minikoszykówka U11",
+    leagueName: "Mini-kosz U11",
   },
   {
     id: 6943,
     leagueId: 381,
-    leagueName: "Minikoszykówka U11",
+    leagueName: "Mini-kosz U11",
   },
 ];
 

@@ -4,13 +4,14 @@ const { GET_TIMETABLE } = require("../constants/pzkoszMethods");
 const fetchData = require("../utils/fetchData");
 const getDatesRange = require("../utils/getDatesRange");
 const isEmptyObject = require("../utils/isEmptyObject");
+const generateUrl = require("../utils/generateUrl");
 
 class UpcomingGamesController extends BaseController {
   constructor() {
     super();
   }
 
-  parseGameData(data, league) {
+  parseGameData(data, leagueName, leagueId) {
     if (!data) {
       return {};
     }
@@ -18,7 +19,7 @@ class UpcomingGamesController extends BaseController {
     return {
       id: data.id,
       date: parseInt(data.mdata),
-      league,
+      league: leagueName,
       homeTeam: {
         id: data.k1.id,
         name: data.k1.nazwa,
@@ -30,6 +31,7 @@ class UpcomingGamesController extends BaseController {
         logo: data.k2.logo.replace("50-50", "100-100"),
       },
       address: data.hala.full,
+      url: generateUrl(leagueId, data.id),
     };
   }
 
@@ -48,7 +50,8 @@ class UpcomingGamesController extends BaseController {
     );
     return this.parseGameData(
       Object.values(upcomingGames.items)[0],
-      leagueName
+      leagueName,
+      leagueId
     );
   };
 

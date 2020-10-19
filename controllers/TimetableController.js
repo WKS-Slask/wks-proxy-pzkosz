@@ -2,8 +2,8 @@ const BaseController = require("./BaseController");
 const fetchData = require("../utils/fetchData");
 const formatDate = require("../utils/formatDate");
 const { GET_TIMETABLE } = require("../constants/pzkoszMethods");
-const leagueTypes = require("../constants/leagueTypes");
 const getTimefromDate = require("../utils/getTimeFromDate");
+const generateUrl = require("../utils/generateUrl");
 
 class TimetableController extends BaseController {
   constructor({
@@ -31,18 +31,6 @@ class TimetableController extends BaseController {
     this.homeTeamId = hometeamid;
     this.awayTeamId = awayteamid;
   }
-
-  generateUrl = (leagueId, gameId) => {
-    if (leagueTypes.REGIONAL.includes(leagueId)) {
-      return `http://dzkosz.finteractive.pl/mecz/${gameId}/`;
-    }
-
-    if (leagueTypes.CENTRAL.includes(leagueId)) {
-      return `https://rozgrywki.pzkosz.pl/mecz/${gameId}/`;
-    }
-
-    return null;
-  };
 
   formatTimetable = (timetable) => {
     if (!timetable) {
@@ -86,7 +74,7 @@ class TimetableController extends BaseController {
           game.dogrywka5,
         ].filter((quarter) => quarter !== "" && quarter !== "0:0"),
       },
-      url: this.generateUrl(game.kolejka.ligaid, game.id),
+      url: generateUrl(game.kolejka.ligaid, game.id),
     }));
   };
 
