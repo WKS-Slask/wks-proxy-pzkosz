@@ -1,15 +1,20 @@
-const fetch = require("node-fetch");
-const qs = require("qs");
+const {
+  GET_PLAYER,
+  GET_PLAYER_RECORDS,
+  GET_PLAYER_STATISTICS,
+} = require("../constants/pzkoszMethods");
+const fetchData = require("../utils/fetchData");
+const BaseController = require("./BaseController");
 
-const PzkoszApiController = require("./PzkoszApiController");
-
-class PlayerController {
+class PlayerController extends BaseController {
   constructor(id) {
+    super();
+
     this.id = id;
   }
 
-  formatPlayerData(data) {
-    const getAge = birthDate => {
+  parsePlayerData(data) {
+    const getAge = (birthDate) => {
       const date = new Date();
       const birthYear = birthDate.substr(
         birthDate.length - 4,
@@ -20,35 +25,14 @@ class PlayerController {
     };
 
     return {
-      position: data.pozycja,
-      height: data.wzrost,
-      age: getAge(data.data_urodzenia)
+      position: data[0].pozycja,
+      height: data[0].wzrost,
+      age: getAge(data[0].data_urodzenia),
+      photo: data[0].foto,
     };
   }
 
-  fetchPlayerData = async id => {
-    try {
-      const response = await fetch(process.env.PZKOSZ_API_ADDRESS, {
-        method: "post",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded"
-        },
-        body: qs.stringify({
-          key: process.env.PZKOSZ_API_KEY,
-          function: "getPlayer",
-          playerid: id
-        })
-      });
-
-      const data = await response.json();
-
-      return this.formatPlayerData(data[0]);
-    } catch (err) {
-      console.warn(err);
-    }
-  };
-
-  formatRecords = async ({ Pkt, As, Sum }) => {
+  parsePlayerRecords = async ({ Pkt, As, Sum }) => {
     if (!Pkt.max || !As.max || !Sum.max) {
       return {};
     }
@@ -57,127 +41,104 @@ class PlayerController {
       points: {
         value: Pkt.max,
         opponent: Pkt.z_kim[0].nazwa,
-        league: await PzkoszApiController.getLeagueName(Pkt.z_kim[0].leagueid),
+        league: await this.getLeagueName(Pkt.z_kim[0].leagueid),
         date: Pkt.z_kim[0].data.substr(0, Pkt.z_kim[0].data.indexOf(" ")),
-        label: "Punkty"
+        label: "Punkty",
       },
       assists: {
         value: As.max,
         opponent: As.z_kim[0].nazwa,
-        league: await PzkoszApiController.getLeagueName(As.z_kim[0].leagueid),
+        league: await this.getLeagueName(As.z_kim[0].leagueid),
         date: As.z_kim[0].data.substr(0, As.z_kim[0].data.indexOf(" ")),
-        label: "Asysty"
+        label: "Asysty",
       },
       rebounds: {
         value: Sum.max,
         opponent: Sum.z_kim[0].nazwa,
-        league: await PzkoszApiController.getLeagueName(Sum.z_kim[0].leagueid),
+        league: await this.getLeagueName(Sum.z_kim[0].leagueid),
         date: Sum.z_kim[0].data.substr(0, Sum.z_kim[0].data.indexOf(" ")),
-        label: "Zbiórki"
-      }
+        label: "Zbiórki",
+      },
     };
   };
 
-  formatStatistics = async statistics => {
-    const promises = statistics.map(async data => {
+  parsePlayerStatistics = async (statistics) => {
+    const promises = statistics.map(async (data) => {
       return {
         points: data.Pkt,
         assists: data.As,
         rebounds: data.Sum,
-        league: await PzkoszApiController.getLeagueName(data.leagueid)
+        league: await this.getLeagueName(data.leagueid),
       };
     });
     return Promise.all(promises);
   };
 
-  fetchPlayerSeasonRecords = async (playerId, seasonId) => {
-    try {
-      const response = await fetch(process.env.PZKOSZ_API_ADDRESS, {
-        method: "post",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded"
-        },
-        body: qs.stringify({
-          key: process.env.PZKOSZ_API_KEY,
-          function: "getPlayerRecords",
-          seasonid: seasonId,
-          playerid: playerId
-        })
-      });
+  getPlayerData = async () => {
+    const playerData = await fetchData(
+      { playerid: this.id },
+      GET_PLAYER,
+      this.parsePlayerData
+    );
 
-      const data = await response.json();
-
-      return this.formatRecords(data);
-    } catch (err) {
-      console.warn(err);
-    }
+    return playerData;
   };
 
-  fetchPlayerCareerRecords = async id => {
-    try {
-      const response = await fetch(process.env.PZKOSZ_API_ADDRESS, {
-        method: "post",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded"
-        },
-        body: qs.stringify({
-          key: process.env.PZKOSZ_API_KEY,
-          function: "getPlayerRecords",
-          playerid: id
-        })
-      });
+  getPlayerSeasonRecords = async () => {
+    const currentSeasonId = await this.getCurrentSeasonId();
+    const seasonRecords = await fetchData(
+      {
+        seasonid: currentSeasonId,
+        playerid: this.id,
+      },
+      GET_PLAYER_RECORDS,
+      this.parsePlayerRecords
+    );
 
-      const data = await response.json();
-
-      return this.formatRecords(data);
-    } catch (err) {
-      console.warn(err);
-    }
+    return seasonRecords;
   };
 
-  fetchPlayerStatistics = async (playerId, seasonId) => {
-    try {
-      const response = await fetch(process.env.PZKOSZ_API_ADDRESS, {
-        method: "post",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded"
-        },
-        body: qs.stringify({
-          key: process.env.PZKOSZ_API_KEY,
-          function: "getPlayerStatistics",
-          playerid: playerId,
-          seasonid: seasonId
-        })
-      });
+  getPlayerCareerRecords = async () => {
+    const careerRecords = await fetchData(
+      {
+        playerid: this.id,
+      },
+      GET_PLAYER_RECORDS,
+      this.parsePlayerRecords
+    );
 
-      const data = await response.json();
-
-      const statistics = await this.formatStatistics(data);
-
-      return statistics;
-    } catch (err) {
-      console.warn(err);
-    }
+    return careerRecords;
   };
 
-  getPlayer = (playerId, seasonId) =>
+  getPlayerStatistics = async () => {
+    const currentSeasonId = await this.getCurrentSeasonId();
+    const playerStatistics = await fetchData(
+      {
+        playerid: this.id,
+        seasonid: currentSeasonId,
+      },
+      GET_PLAYER_STATISTICS,
+      this.parsePlayerStatistics
+    );
+
+    return playerStatistics;
+  };
+
+  getPlayer = () =>
     Promise.all([
-      this.fetchPlayerData(playerId),
-      this.fetchPlayerSeasonRecords(playerId, seasonId),
-      this.fetchPlayerCareerRecords(playerId),
-      this.fetchPlayerStatistics(playerId, seasonId)
-    ]).then(playerData => ({
+      this.getPlayerData(),
+      this.getPlayerSeasonRecords(),
+      this.getPlayerCareerRecords(),
+      this.getPlayerStatistics(),
+    ]).then((playerData) => ({
       data: playerData[0],
       seasonRecords: playerData[1],
       careerRecords: playerData[2],
-      statistics: playerData[3]
+      statistics: playerData[3],
     }));
 
   async get(req, res) {
-    const seasonId = await PzkoszApiController.getSeasonId();
-    console.log(seasonId);
-    const data = await this.getPlayer(this.id, seasonId);
-    console.log(data);
+    const data = await this.getPlayer();
     res.status(200).send(data);
   }
 }

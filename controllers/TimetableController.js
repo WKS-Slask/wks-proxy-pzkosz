@@ -1,66 +1,111 @@
-const fetch = require("node-fetch");
-const qs = require("qs");
-
+const BaseController = require("./BaseController");
+const fetchData = require("../utils/fetchData");
 const formatDate = require("../utils/formatDate");
+const { GET_TIMETABLE } = require("../constants/pzkoszMethods");
+const getTimefromDate = require("../utils/getTimeFromDate");
+const generateUrl = require("../utils/generateUrl");
 
-const PzkoszApiController = require("./PzkoszApiController");
+class TimetableController extends BaseController {
+  constructor({
+    leagueid,
+    seasonid,
+    teamid,
+    roundid,
+    lineid,
+    groupid,
+    dateFrom,
+    dateTo,
+    hometeamid,
+    awayteamid,
+  }) {
+    super();
 
-class TimetableController {
-  constructor(leagueId, teamId) {
-    this.leagueId = leagueId;
-    this.teamId = teamId;
+    this.leagueId = leagueid;
+    this.seasonId = seasonid;
+    this.teamId = teamid;
+    this.roundId = roundid;
+    this.lineId = lineid;
+    this.groupId = groupid;
+    this.dateFrom = dateFrom;
+    this.dateTo = dateTo;
+    this.homeTeamId = hometeamid;
+    this.awayTeamId = awayteamid;
   }
 
-  formatTimetableData(data) {
-    if (!data) {
+  formatTimetable = (timetable) => {
+    if (!timetable) {
       return [];
     }
 
-    return Object.values(data.items).map(game => ({
-      kolejka: game.kolejka,
-      data: formatDate(game.data),
-      k1: { ...game.k1, logo: game.k1.logo.replace("50-50", "100-100") },
-      k2: { ...game.k2, logo: game.k2.logo.replace("50-50", "100-100") },
+    console.log(timetable);
+
+    return Object.values(timetable.items).map((game) => ({
       id: game.id,
-      wynik1: game.wynik1,
-      wynik2: game.wynik2
+      league: {
+        id: game.liga.id,
+        name: game.liga.nazwa,
+      },
+      line: {
+        id: game.kolejka.id,
+        name: game.kolejka.nazwa,
+      },
+      data: formatDate(game.data),
+      time: getTimefromDate(game.data),
+      homeTeam: {
+        id: game.k1.id,
+        name: game.k1.nazwa,
+        logo: game.k1.logo,
+      },
+      awayTeam: {
+        id: game.k2.id,
+        name: game.k2.nazwa,
+        logo: game.k2.logo,
+      },
+      score: {
+        homeScore: game.wynik1,
+        awayScore: game.wynik2,
+        quarters: [
+          game.kwarta1,
+          game.kwarta2,
+          game.kwarta3,
+          game.kwarta4,
+          game.dogrywka1,
+          game.dogrywka2,
+          game.dogrywka3,
+          game.dogrywka4,
+          game.dogrywka5,
+        ].filter((quarter) => quarter !== "" && quarter !== "0:0"),
+      },
+      url: generateUrl(game.kolejka.ligaid, game.id),
     }));
-  }
+  };
 
-  fetchTimetable = async seasonId => {
+  getTimetable = async () =>
+    await fetchData(
+      {
+        leagueid: this.leagueId,
+        seasonid: this.seasonId || (await this.getCurrentSeasonId()),
+        team: this.teamId,
+        round: this.roundId,
+        line: this.lineId,
+        groupid: this.groupId,
+        dateFrom: this.dateFrom,
+        dateTo: this.dateTo,
+        home: this.homeTeamId,
+        visitor: this.awayTeamId,
+      },
+      GET_TIMETABLE,
+      this.formatTimetable
+    );
+
+  get = async (req, res) => {
     try {
-      const response = await fetch(process.env.PZKOSZ_API_ADDRESS, {
-        method: "post",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded"
-        },
-        body: qs.stringify({
-          key: process.env.PZKOSZ_API_KEY,
-          function: "getTimetable",
-          seasonid: seasonId,
-          leagueid: this.leagueId,
-          team: this.teamId
-        })
-      });
-
-      const data = await response.json();
-
-      return data;
+      const timetable = await this.getTimetable();
+      res.status(200).send(timetable);
     } catch (err) {
       console.warn(err);
     }
   };
-
-  async get(req, res) {
-    try {
-      const seasonId = await PzkoszApiController.getSeasonId();
-      const timetable = await this.fetchTimetable(seasonId);
-
-      res.status(200).send(this.formatTimetableData(timetable));
-    } catch (err) {
-      console.warn(err);
-    }
-  }
 }
 
 module.exports = TimetableController;

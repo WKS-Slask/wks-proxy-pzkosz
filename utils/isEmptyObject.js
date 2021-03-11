@@ -1,3 +1,3 @@
-const isEmptyObject = object => Object.keys(object).length === 0;
+const isEmptyObject = (object) => object && Object.keys(object).length === 0;
 
 module.exports = isEmptyObject;
