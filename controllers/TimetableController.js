@@ -37,8 +37,6 @@ class TimetableController extends BaseController {
       return [];
     }
 
-    console.log(timetable);
-
     return Object.values(timetable.items).map((game) => ({
       id: game.id,
       league: {
